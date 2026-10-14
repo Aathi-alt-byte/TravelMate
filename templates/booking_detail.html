@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ booking.public_id }} | TravelMate{% endblock %}
+{% block content %}
+<section class="form-page">
+  <p class="eyebrow">TRAVELMATE BOOKING</p>
+  <h1>{{ booking.destination_name }}</h1>
+  <p>Booking reference <strong>{{ booking.public_id }}</strong></p>
+  <p>{{ booking.start_date }} – {{ booking.end_date }} · {{ booking.travelers }} travellers</p>
+  <p>{{ booking.traveler_name }} · {{ booking.traveler_email }} · {{ booking.traveler_phone }}</p>
+  <div class="payment-costs">
+    <div><span>Trip estimate</span><strong>₹{{ '{:,}'.format(booking.daily_cost * booking.trip_days * booking.travelers) }}</strong></div>
+    <div><span>Approximate one-way gateway travel</span><strong>₹{{ '{:,}'.format(booking.travel_cost * booking.travelers) }}</strong></div>
+    <div class="payment-total"><span>Total payable</span><strong>₹{{ '%.2f'|format(booking.amount_paise / 100) }} INR</strong></div>
+  </div>
+  <p>Payment status: <strong>{{ booking.payment_status }}</strong> · Booking status: <strong>{{ booking.booking_status }}</strong></p>
+  {% if payment %}<p>Gateway order {{ payment.order_id }} · Gateway status {{ payment.status }}</p>{% endif %}
+  <p>Unpaid bookings may be cancelled here. Paid cancellation requests require support review and do not mean a refund has been issued.</p>
+  <a href="{{ url_for('travel.terms') }}">Read booking terms</a>
+
+  {% if booking.booking_status == 'awaiting_payment' %}
+  <div class="itinerary-actions">
+    <form method="post" action="{{ url_for('travel.create_payment_order', public_id=booking.public_id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="button button-gold" type="submit">Continue to secure payment</button></form>
+    <form method="post" action="{{ url_for('travel.cancel_booking', public_id=booking.public_id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="button button-outline" type="submit">Cancel unpaid booking</button></form>
+  </div>
+  {% elif booking.payment_status == 'paid' %}
+  <div class="itinerary-actions"><a class="button button-teal" href="{{ url_for('travel.payment_result', public_id=booking.public_id) }}">View payment confirmation</a></div>
+  {% if cancellation_eligible %}
+  <form method="post" action="{{ url_for('travel.cancel_booking', public_id=booking.public_id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="button button-outline" type="submit">Request cancellation</button></form>
+  {% elif booking.cancellation_status != 'not_requested' %}
+  <p>Cancellation request status: {{ booking.cancellation_status }}. No refund is marked complete.</p>
+  {% else %}
+  <p>Cancellation requests must be made at least {{ cancellation_days }} days before travel. Contact support for review; no refund is implied.</p>
+  {% endif %}
+  {% endif %}
+  <a href="{{ url_for('travel.my_trips') }}">My Trips</a>
+</section>
+{% endblock %}

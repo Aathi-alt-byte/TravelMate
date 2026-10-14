@@ -1,0 +1,79 @@
+﻿{% extends "base.html" %}
+{% block title %}{{ destination.name }} Travel Guide | TravelMate{% endblock %}
+{% block body_class %}detail-page{% endblock %}
+{% block content %}
+<section class="detail-hero" aria-labelledby="destination-title">
+      <img class="detail-cover" src="https://images.unsplash.com/{{ destination.image_id }}?auto=format&fit=crop&w=2200&q=88" alt="Scenery in {{ destination.name }}" fetchpriority="high">
+      <div class="detail-cover-shade"></div>
+      <div class="detail-hero-content">
+        <a class="detail-back" href="{{ url_for('destinations') }}"> Back to Destinations</a>
+        <p class="eyebrow eyebrow-light"><span class="eyebrow-rule"></span> {{ destination.category }} · {{ destination.region }}</p>
+        <h1 id="destination-title">{{ destination.name }}</h1>
+        <p>{{ destination.description }} {{ guide.season_note }}</p>
+        <a class="button button-gold" href="{{ url_for('plan_trip') }}?destination={{ destination.name|urlencode }}">Plan a Trip Here </a>
+      </div>
+      <span class="detail-cover-note">A field guide for your next getaway</span>
+    </section>
+
+    <section class="detail-intro detail-width">
+      <div><p class="eyebrow"><span class="eyebrow-rule"></span> Before you go</p><h2>A little context<br>for the <em>journey.</em></h2></div>
+      <div class="season-note"><span class="season-icon" aria-hidden="true">✳</span><div><span class="season-label">BEST TIME TO VISIT</span><h3>{{ guide.best_time }}</h3><p>{{ guide.season_note }}</p></div></div>
+    </section>
+
+    <section class="detail-gallery detail-width" aria-label="{{ destination.name }} image gallery">
+      <div class="gallery-heading"><div><p class="eyebrow"><span class="eyebrow-rule"></span> A glimpse of the place</p><h2>Somewhere to <em>wander.</em></h2></div><span class="gallery-count">0{{ guide.gallery|length }} / LANDSCAPES</span></div>
+      <div class="gallery-grid">
+        {% for image_id, image_alt, caption in guide.gallery %}
+        <figure class="gallery-frame"><img src="https://images.unsplash.com/{{ image_id }}?auto=format&fit=crop&w=1000&q=82" alt="{{ image_alt }} near {{ destination.name }}" loading="lazy"><figcaption><span>0{{ loop.index }}</span>{{ caption }}</figcaption></figure>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="detail-discover">
+      <div class="detail-width discover-layout">
+        <div class="attraction-column"><p class="eyebrow"><span class="eyebrow-rule"></span> Make a day of it</p><h2>Worth the <em>detour.</em></h2>
+          <div class="attraction-list">
+            {% for name, description in guide.attractions %}
+            <article class="attraction-item"><span class="attraction-number">0{{ loop.index }}</span><div><h3>{{ name }}</h3><p>{{ description }}</p></div></article>
+            {% endfor %}
+          </div>
+        </div>
+        <aside class="activity-aside"><span class="aside-kicker">A FEW GOOD IDEAS</span><h3>While you're <em>there.</em></h3><ul>{% for activity in guide.activities %}<li> aria-hidden="true">?</span>{{ activity }}</li>{% endfor %}</ul></aside>
+      </div>
+    </section>
+
+    <section class="detail-width destination-extras">
+      <div><p class="eyebrow">Plan the details</p><h2>{{ guide.duration_days }} suggested days</h2><p>Approximate gateway travel cost: ₹{{ '{:,}'.format(guide.travel_cost) }} per person, one way. This is an estimate and depends on origin and dates.</p></div>
+      <div><h2>Try the local food</h2><ul>{% for food in guide.food %}<li>{{ food }}</li>{% endfor %}</ul></div>
+      <div><h2>A simple itinerary start</h2><ol>{% for activity in guide.activities %}<li>{{ activity }}</li>{% endfor %}</ol></div>
+    </section>    <section class="detail-costs detail-width" aria-labelledby="cost-title">
+      <div class="cost-heading"><div><p class="eyebrow"><span class="eyebrow-rule"></span> Plan with a little perspective</p><h2 id="cost-title">The day-to-day, <em>estimated.</em></h2><p>Sample planning ranges in Indian rupees. Actual costs vary by dates, preferences, and local conditions.</p></div><div class="daily-total"><span>ESTIMATED DAILY BUDGET</span><strong>₹{{ '{:,}'.format(destination.daily_cost) }}</strong><small>per person · indicative</small></div></div>
+      <div class="cost-note"><span aria-hidden="true">i</span> All prices on this guide are illustrative estimates, not quotes or live availability. Confirm current rates directly before booking.</div>
+      <div class="expense-breakdown" aria-label="Estimated daily expense breakdown">
+        <div class="expense-heading"><h3>How a day might add up</h3><span>Estimated ₹ / person / day</span></div>
+        {% for label, amount in guide.expenses %}
+        <div class="expense-row"><span>{{ label }}</span><div class="expense-track" aria-hidden="true"><i style="--expense-share: {{ (amount / destination.daily_cost * 100)|round }}%"></i></div><strong>₹{{ '{:,}'.format(amount) }}</strong></div>
+        {% endfor %}
+        <p class="expense-assumption">Room share assumes two travellers sharing one room. Stay options below are indicative prices per room per night.</p>
+      </div>
+      <div class="stay-heading"><div><p class="eyebrow"><span class="eyebrow-rule"></span> Rest well</p><h2>Places to <em>stay.</em></h2></div><span>Indicative room rates · per night</span></div>
+      <div class="stay-grid">
+        {% for name, description, price in guide.stays %}
+        <article class="stay-item"><span class="stay-index">0{{ loop.index }}</span><h3>{{ name }}</h3><p>{{ description }}</p><div class="stay-price"><span>FROM AROUND</span><strong>₹{{ '{:,}'.format(price) }}</strong><small>per room / night</small></div></article>
+        {% endfor %}
+      </div>
+      <p class="stay-disclaimer">Accommodation names describe sample stay types, not specific bookable properties. Prices are indicative only and availability is not checked.</p>
+    </section>
+
+    <section class="transport-band">
+      <div class="detail-width transport-layout"><div><p class="eyebrow eyebrow-light"><span class="eyebrow-rule"></span> Getting around</p><h2>Find your <em>own pace.</em></h2></div><div><p>{{ guide.transport }}</p><a class="text-link transport-link" href="{{ url_for('plan_trip') }}?destination={{ destination.name|urlencode }}">Build this into your trip </a></div></div>
+    </section>
+
+    <section class="detail-end detail-width"><div><p class="eyebrow"><span class="eyebrow-rule"></span> The good part starts here</p><h2>Ready to make it <em>yours?</em></h2></div><a class="button button-teal" href="{{ url_for('plan_trip') }}?destination={{ destination.name|urlencode }}">Plan a Trip Here </a> <a class="button button-gold" href="{{ url_for('travel.book_trip', destination_slug=destination.slug) }}">Book This Trip</a></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/detail.js') }}" defer></script>
+{% endblock %}
+
+
+

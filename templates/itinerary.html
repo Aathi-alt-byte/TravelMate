@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Your {{ itinerary.destination_name }} itinerary | TravelMate{% endblock %}
+{% block content %}
+<section class="itinerary-result" id="itinerary" aria-labelledby="itinerary-title">
+  <div class="itinerary-width">
+    <div class="result-topline"><p class="eyebrow"><span class="eyebrow-rule"></span> Your first draft is ready</p><span>TRAVELMATE TRIP OUTLINE</span></div>
+    <div class="itinerary-heading">
+      <div>
+        <h2 id="itinerary-title">{{ itinerary.destination_name }}<br><em>is calling.</em></h2>
+        <p>From {{ itinerary.start_date_display }} to {{ itinerary.end_date_display }} · {{ itinerary.trip_days }} {{ 'day' if itinerary.trip_days == 1 else 'days' }}</p>
+      </div>
+      <div class="budget-verdict {{ 'budget-ok' if itinerary.within_budget else 'budget-over' }}">
+        <span>{{ 'WITHIN YOUR BUDGET' if itinerary.within_budget else 'BUDGET CHECK' }}</span>
+        <strong>₹{{ '{:,}'.format(itinerary.estimated_total) }}</strong>
+        <small>estimated total · {{ itinerary.travelers }} {{ 'traveler' if itinerary.travelers == 1 else 'travelers' }}</small>
+        <p>{{ 'Your budget leaves room for choices along the way.' if itinerary.within_budget else 'This estimate is above your budget. Consider fewer days, a lower-cost stay, or more budget.' }}</p>
+      </div>
+    </div>
+
+    <div class="trip-summary-grid">
+      <div><span>STARTING FROM</span><strong>{{ itinerary.starting_location }}</strong></div>
+      <div><span>TRAVEL STYLE</span><strong>{{ itinerary.preferences|join(', ') }}</strong></div>
+      <div><span>STAY & GETTING THERE</span><strong>{{ itinerary.accommodation }} · {{ itinerary.transportation }}</strong></div>
+      <div><span>YOUR TOTAL BUDGET</span><strong>₹{{ '{:,}'.format(itinerary.budget) }}</strong></div>
+      <div><span>DAILY ESTIMATE</span><strong>₹{{ '{:,}'.format(itinerary.daily_cost * itinerary.travelers * itinerary.trip_days) }}</strong></div>
+      <div><span>GATEWAY TRAVEL ESTIMATE</span><strong>₹{{ '{:,}'.format(itinerary.travel_cost * itinerary.travelers) }}</strong></div>
+    </div>
+
+    <div class="itinerary-actions">
+      {% if itinerary.saved %}
+      <a class="button button-teal" href="{{ url_for('travel.my_trips') }}">Saved to My Trips</a>
+      {% elif current_user %}
+      <form method="post" action="{{ url_for('travel.save_itinerary', public_id=itinerary.public_id) }}">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+        <button class="button button-teal" type="submit">Save Itinerary</button>
+      </form>
+      {% else %}
+      <a class="button button-teal" href="{{ url_for('travel.login', next=url_for('itinerary_result', public_id=itinerary.public_id)) }}">Sign in to save</a>
+      {% endif %}
+      <a class="button button-gold" href="{{ url_for('travel.book_trip', destination_slug=itinerary.destination_name|lower|replace(' ', '-'), start_date=itinerary.start_date, end_date=itinerary.end_date, travelers=itinerary.travelers) }}">Book This Trip</a>
+      <a class="button button-outline" href="{{ url_for('plan_trip', destination=itinerary.destination_name, starting_location=itinerary.starting_location, start_date=itinerary.start_date, end_date=itinerary.end_date, travelers=itinerary.travelers, preferences=itinerary.preferences, accommodation=itinerary.accommodation, transportation=itinerary.transportation, budget=itinerary.budget) }}">Edit Trip</a>
+      <a class="text-link planner-back-link" href="{{ url_for('plan_trip') }}">Back to planner</a>
+    </div>
+
+    <div class="generated-heading"><div><p class="eyebrow"><span class="eyebrow-rule"></span> A thoughtful starting point</p><h2>Your day-by-day outline</h2></div><span>Swap, skip, and make it yours.</span></div>
+    <div class="itinerary-days">
+      {% for day in itinerary.days %}
+      <article class="itinerary-day">
+        <div class="day-index"><span>DAY</span><strong>{{ '%02d'|format(day.number) }}</strong><small>{{ day.date }}</small></div>
+        <div class="day-agenda"><div><span>MORNING</span><p>{{ day.morning }}</p></div><div><span>AFTERNOON</span><p>{{ day.afternoon }}</p></div><div><span>EVENING</span><p>{{ day.evening }}</p></div></div>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="itinerary-disclaimer">This suggested outline is a planning aid, not a reservation. Check opening days, transport schedules, weather, and local conditions before you go. Your budget estimate is indicative, not a live quote.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,104 @@
+﻿{% extends "base.html" %}
+{% block title %}TravelMate | Discover Places. Make Memories.{% endblock %}
+{% block body_class %}{% endblock %}
+{% block content %}
+<section class="hero" id="home" aria-labelledby="hero-title">
+      <img class="hero-image" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=88" alt="Layered mountain peaks beneath a soft morning sky">
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <p class="eyebrow hero-eyebrow"><span class="eyebrow-rule"></span> Your next story starts here</p>
+        <h1 id="hero-title">Explore the World<br><em>with TravelMate.</em></h1>
+        <p class="hero-copy">Plan your perfect holiday with smart itineraries and budget-friendly travel.</p>
+        <div class="hero-actions">
+          <a class="button button-gold" href="{{ url_for('plan_trip') }}">Plan My Trip </a>
+          <a class="text-link hero-explore" href="#destinations">Explore destinations </a>
+        </div>
+        <div class="hero-note"><span class="note-dot"></span> Made for the places you haven't been yet</div>
+      </div>
+      <div class="hero-side-label" aria-hidden="true">A little farther, a little freer</div>
+      <div class="hero-index" aria-hidden="true"><span>01</span><i></i> 05</div>
+    </section>
+
+    <section class="search-section" aria-label="Find a destination">
+      <form class="search-form" id="destination-search" role="search">
+        <label class="search-label" for="destination-query">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <span class="search-field-copy"><span class="field-heading">Where to?</span><span class="field-hint">Search a destination</span></span>
+          <input id="destination-query" name="q" type="search" placeholder="Try Munnar, Goa..." autocomplete="off">
+        </label>
+        <div class="search-divider" aria-hidden="true"></div>
+        <div class="search-prompt"><span class="prompt-top">A good place to begin</span><span class="prompt-bottom">Your next escape is closer than you think.</span></div>
+        <button class="button button-teal search-button" type="submit">Find a place </button>
+        <div class="search-results" id="search-results" aria-live="polite" hidden></div>
+      </form>
+    </section>
+
+    <section class="destinations section-pad" id="destinations" aria-labelledby="destinations-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-rule"></span> Made for getting away</p>
+          <h2 id="destinations-title">A few places to <em>fall for.</em></h2>
+        </div>
+        <a class="text-link dark-link" href="{{ url_for('destinations') }}">See where your days could go </a>
+      </div>
+      <div class="destination-grid">
+        {% for destination in destinations[:5] %}
+        <a class="destination-card{% if loop.index == 1 %} destination-tall{% endif %}" href="{{ url_for('destination_detail', destination_slug=destination.name|lower|replace(' ', '-')) }}" data-destination="{{ destination.name }}">
+          <img src="https://images.unsplash.com/{{ destination.image_id }}?auto=format&fit=crop&w=900&q=82" alt="Scenery in {{ destination.name }}" loading="lazy">
+          <span class="card-shade"></span>
+          <span class="destination-number">0{{ loop.index }}</span>
+          <span class="destination-info"><span class="destination-region">{{ destination.region }}</span><span class="destination-name">{{ destination.name }}</span><span class="destination-description">{{ destination.description }}</span></span>
+          <span class="card-arrow" aria-hidden="true">↗</span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="planning-band" id="plan">
+      <div class="planning-image" role="img" aria-label="A calm lakeside landscape at sunset"></div>
+      <div class="planning-copy" id="my-trips">
+        <p class="eyebrow eyebrow-light"><span class="eyebrow-rule"></span> Less planning, more being there</p>
+        <h2>Make room for<br><em>the good stuff.</em></h2>
+        <p>From the first idea to the last stop, bring your plans together in one place. Start with a destination you love; we’ll help you find a way there.</p>
+        <a class="button button-gold" href="{{ url_for('plan_trip') }}">Start your journey </a>
+      </div>
+      <div class="planning-stamp" aria-hidden="true"><span>TAKE THE<br>SCENIC ROUTE</span><i>✳</i></div>
+    </section>
+
+<section class="section-pad" aria-labelledby="packages-title">
+<div class="section-heading"><div><p class="eyebrow">Curated starting points</p><h2 id="packages-title">Popular travel <em>packages.</em></h2><p>Indicative per-person daily estimates. No live availability or discount is implied.</p></div></div>
+<div class="destination-grid">{% for destination in destinations[:3] %}<a class="destination-card" href="{{ url_for('destination_detail', destination_slug=destination.name|lower|replace(' ', '-')) }}"><img src="https://images.unsplash.com/{{ destination.image_id }}?auto=format&fit=crop&w=900&q=82" alt="Scenery in {{ destination.name }}" loading="lazy"><span class="card-shade"></span><span class="destination-info"><span class="destination-region">{{ destination.region }}</span><span class="destination-name">{{ destination.name }}</span><span class="destination-description">From around INR {{ destination.daily_cost }} per traveller, per day</span></span></a>{% endfor %}</div>
+</section>
+<section class="section-pad" aria-labelledby="seasonal-title"><p class="eyebrow">Seasonal inspiration</p><h2 id="seasonal-title">Good days for a <em>getaway.</em></h2><p>Seasonal suggestions are travel ideas, not guaranteed offers, discounts, or availability.</p><a class="button button-teal" href="{{ url_for('destinations') }}">Explore destinations</a></section>
+<section class="section-pad sample-stories"><p class="eyebrow">Illustrative sample content</p><h2>Sample traveller <em>stories.</em></h2><p>These fictional examples demonstrate the kind of trips travellers can plan; they are not customer reviews or endorsements.</p><blockquote>“A slow weekend with time for the tea gardens.” <cite>Sample itinerary story · fictional</cite></blockquote></section>    <section class="benefits section-pad" id="budget" aria-labelledby="benefits-title">
+      <div class="benefits-heading">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> Thoughtful travel, made simple</p>
+        <h2 id="benefits-title">Why choose<br><em>TravelMate?</em></h2>
+      </div>
+      <div class="benefit-list">
+        <article class="benefit-item">
+          <span class="benefit-mark" aria-hidden="true">01</span>
+          <div><h3>Plans that feel like yours</h3><p>Build a trip around your pace, your people, and the things you love doing.</p></div>
+        </article>
+        <article class="benefit-item">
+          <span class="benefit-mark" aria-hidden="true">02</span>
+          <div><h3>A budget with breathing room</h3><p>Keep the big picture in view, so you can spend more time enjoying the little things.</p></div>
+        </article>
+        <article class="benefit-item">
+          <span class="benefit-mark" aria-hidden="true">03</span>
+          <div><h3>Good ideas, all in one place</h3><p>Collect the places, stays, and stops that make a trip unmistakably yours.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="closing-strip" aria-label="Plan a thoughtful getaway">
+      <span>THE BEST PLANS LEAVE ROOM FOR A DETOUR.</span>
+      <a href="{{ url_for('plan_trip') }}">Let's find your way </a>
+    </section>
+{% endblock %}
+{% block scripts %}
+{% endblock %}
+
+
+
+

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Payment confirmation | TravelMate{% endblock %}
+{% block content %}
+<section class="form-page receipt-page">
+  <div class="receipt-content">
+    {% if booking.payment_status == 'paid' and booking.booking_status == 'confirmed' %}
+    <p class="eyebrow">PAYMENT VERIFIED</p>
+    <h1>Booking confirmed</h1>
+    {% else %}
+    <p class="eyebrow">PAYMENT STATUS</p>
+    <h1>Payment not confirmed</h1>
+    {% endif %}
+
+    <p>Booking reference <strong>{{ booking.public_id }}</strong></p>
+    <h2>{{ booking.destination_name }} · {{ booking.destination_region }}</h2>
+    <div class="receipt-details">
+      <div><span>Travel dates</span><strong>{{ booking.start_date }} – {{ booking.end_date }}</strong></div>
+      <div><span>Travellers</span><strong>{{ booking.travelers }}</strong></div>
+      <div><span>Traveller</span><strong>{{ booking.traveler_name }}</strong></div>
+      <div><span>Email and phone</span><strong>{{ booking.traveler_email }} · {{ booking.traveler_phone }}</strong></div>
+      <div><span>Amount</span><strong>₹{{ '%.2f'|format(booking.amount_paise / 100) }} INR</strong></div>
+      <div><span>Payment status</span><strong>{{ booking.payment_status }}</strong></div>
+      <div><span>Booking status</span><strong>{{ booking.booking_status }}</strong></div>
+      {% if payment %}
+      <div><span>Payment reference</span><strong>{{ payment.payment_id or 'Not available' }}</strong></div>
+      <div><span>Gateway status</span><strong>{{ payment.status }}</strong></div>
+      {% endif %}
+    </div>
+    {% if booking.payment_status == 'paid' and booking.booking_status == 'confirmed' %}
+    <p>This confirmation was issued after server-side signature verification and Razorpay reported the payment as captured. Refunds are not implied.</p>
+    <div class="receipt-actions"><button class="button button-teal" type="button" onclick="window.print()">Print or save receipt</button></div>
+    {% else %}
+    <p>The booking is not confirmed. Do not make another payment unless the booking page shows it is awaiting payment.</p>
+    {% endif %}
+    <a href="{{ url_for('travel.booking_detail', public_id=booking.public_id) }}">Booking details</a>
+    <span aria-hidden="true"> · </span>
+    <a href="{{ url_for('travel.my_trips') }}">My Trips</a>
+  </div>
+</section>
+{% endblock %}

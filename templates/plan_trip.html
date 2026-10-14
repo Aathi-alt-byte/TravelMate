@@ -1,0 +1,122 @@
+﻿{% extends "base.html" %}
+{% block title %}Plan Your Perfect Trip | TravelMate{% endblock %}
+{% block body_class %}planner-page{% endblock %}
+{% block content %}
+<section class="planner-intro">
+      <div class="planner-intro-inner">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> One good trip starts with a few details</p>
+        <h1>Plan Your<br><em>Perfect Trip</em></h1>
+        <p>Tell us what your kind of getaway looks like. We’ll sketch a starting itinerary around your destination, dates, and travel style.</p>
+      </div>
+      <div class="planner-intro-stamp" aria-hidden="true"><span>TAKE THE<br>SCENIC ROUTE</span><i>✳</i></div>
+    </section>
+
+    <section class="planner-layout" aria-label="Trip planning form">
+      <div class="planner-main">
+        {% if errors %}
+        <div class="form-error-summary" role="alert" tabindex="-1">
+          <strong>Almost there. A couple of details need attention.</strong>
+          <span>{{ errors.get('generation', 'Review the highlighted fields below and try again.') }}</span>
+        </div>
+        {% endif %}
+
+        <form class="planner-form" method="post" action="{{ url_for('plan_trip') }}" novalidate>
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <fieldset class="form-section">
+            <legend><span>01</span><span><strong>Where & when</strong><small>Choose a destination and your travel dates.</small></span></legend>
+            <div class="form-grid form-grid-two">
+              <div class="field-block">
+                <label for="destination">Destination <span class="required-mark">*</span></label>
+                <select id="destination" name="destination" required aria-invalid="{{ 'true' if errors.get('destination') else 'false' }}" aria-describedby="destination-error">
+                  <option value="">Select a destination</option>
+                  {% for destination in destinations %}
+                  <option value="{{ destination.name }}" {% if form_data.destination == destination.name %}selected{% endif %}>{{ destination.name }} · {{ destination.region }}</option>
+                  {% endfor %}
+                </select>
+                <span class="field-error" id="destination-error">{{ errors.get('destination', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="starting_location">Starting location <span class="required-mark">*</span></label>
+                <input id="starting_location" name="starting_location" type="text" placeholder="e.g. Bengaluru" value="{{ form_data.starting_location }}" maxlength="80" required aria-invalid="{{ 'true' if errors.get('starting_location') else 'false' }}" aria-describedby="starting-location-error">
+                <span class="field-error" id="starting-location-error">{{ errors.get('starting_location', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="start_date">Start date <span class="required-mark">*</span></label>
+                <input id="start_date" name="start_date" type="date" min="{{ today }}" value="{{ form_data.start_date }}" required aria-invalid="{{ 'true' if errors.get('start_date') else 'false' }}" aria-describedby="start-date-error">
+                <span class="field-error" id="start-date-error">{{ errors.get('start_date', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="end_date">End date <span class="required-mark">*</span></label>
+                <input id="end_date" name="end_date" type="date" min="{{ form_data.start_date if form_data.start_date >= today else today }}" value="{{ form_data.end_date }}" required aria-invalid="{{ 'true' if errors.get('end_date') else 'false' }}" aria-describedby="end-date-error">
+                <span class="field-error" id="end-date-error">{{ errors.get('end_date', '') }}</span>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-section">
+            <legend><span>02</span><span><strong>Your travel style</strong><small>Pick what you want more of on this trip.</small></span></legend>
+            <div class="field-block preference-field">
+              <span class="group-label">Travel preferences <span class="required-mark">*</span></span>
+              <div class="preference-options" aria-describedby="preferences-error">
+                {% for preference in preferences %}
+                <label class="preference-option"><input type="checkbox" name="preferences" value="{{ preference }}" {% if preference in form_data.preferences %}checked{% endif %}><span class="preference-check" aria-hidden="true">✓</span><span>{{ preference }}</span></label>
+                {% endfor %}
+              </div>
+              <span class="field-error" id="preferences-error">{{ errors.get('preferences', '') }}</span>
+            </div>
+            <div class="form-grid form-grid-two">
+              <div class="field-block">
+                <label for="accommodation">Accommodation preference <span class="required-mark">*</span></label>
+                <select id="accommodation" name="accommodation" required aria-invalid="{{ 'true' if errors.get('accommodation') else 'false' }}" aria-describedby="accommodation-error">
+                  {% for option in accommodations %}<option value="{{ option }}" {% if form_data.accommodation == option %}selected{% endif %}>{{ option }}</option>{% endfor %}
+                </select>
+                <span class="field-error" id="accommodation-error">{{ errors.get('accommodation', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="transportation">Transportation preference <span class="required-mark">*</span></label>
+                <select id="transportation" name="transportation" required aria-invalid="{{ 'true' if errors.get('transportation') else 'false' }}" aria-describedby="transportation-error">
+                  {% for option in transport_options %}<option value="{{ option }}" {% if form_data.transportation == option %}selected{% endif %}>{{ option }}</option>{% endfor %}
+                </select>
+                <span class="field-error" id="transportation-error">{{ errors.get('transportation', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="travelers">Number of travelers <span class="required-mark">*</span></label>
+                <div class="number-input-wrap"><input id="travelers" name="travelers" type="number" min="1" max="20" step="1" value="{{ form_data.travelers }}" required aria-invalid="{{ 'true' if errors.get('travelers') else 'false' }}" aria-describedby="travelers-error"><span>people</span></div>
+                <span class="field-error" id="travelers-error">{{ errors.get('travelers', '') }}</span>
+              </div>
+              <div class="field-block">
+                <label for="budget">Total trip budget <span class="required-mark">*</span></label>
+                <div class="budget-input-wrap"><span aria-hidden="true">₹</span><input id="budget" name="budget" type="number" min="1" max="50000000" step="500" placeholder="e.g. 25000" value="{{ form_data.budget }}" required aria-invalid="{{ 'true' if errors.get('budget') else 'false' }}" aria-describedby="budget-error"><small>INR</small></div>
+                <span class="field-error" id="budget-error">{{ errors.get('budget', '') }}</span>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <p><span aria-hidden="true">✳</span> Required fields keep your plan useful and personal.</p>
+            <button class="button button-teal generate-button" type="submit">
+              <span class="generate-label">Generate My Itinerary</span>
+              <span class="generate-loading" hidden><i aria-hidden="true"></i> Building your itinerary…</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="planner-aside">
+        <span class="aside-kicker">A NOTE FROM THE ROAD</span>
+        <span class="planner-aside-mark" aria-hidden="true">✳</span>
+        <p>“The best kind of trip gives you a plan, then lets the day surprise you.”</p>
+        <span class="aside-signoff">YOUR TRAVELMATE</span>
+        <div class="planner-aside-bottom"><span>01</span><i></i> START WITH A PLACE</div>
+      </aside>
+    </section>
+
+    <section class="planner-footer-cta"><p>Still choosing your somewhere?</p><a href="{{ url_for('destinations') }}">Explore destinations </a></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/planner.js') }}" defer></script>
+{% endblock %}
+
+
+
+

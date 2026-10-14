@@ -1,0 +1,19 @@
+﻿<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b38"><title>{% block title %}TravelMate{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+{% block head %}{% endblock %}</head><body class="{% block body_class %}{% endblock %}">
+<header class="site-header"><div class="nav-wrap">
+<a class="brand" href="{{ url_for('home') }}" aria-label="TravelMate home"><span class="brand-mark" aria-hidden="true">T</span><span>travel<span class="brand-light">mate</span></span></a>
+<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav"><span class="menu-lines" aria-hidden="true"></span><span class="sr-only">Toggle navigation</span></button>
+<nav class="primary-nav" id="primary-nav" aria-label="Main navigation"><a class="nav-link" href="{{ url_for('home') }}">Home</a><a class="nav-link" href="{{ url_for('destinations') }}">Destinations</a><a class="nav-link" href="{{ url_for('plan_trip') }}">Plan a Trip</a><a class="nav-link" href="{{ url_for('budget_calculator') }}">Budget Calculator</a><a class="nav-link" href="{{ url_for('travel.my_trips') }}">My Trips</a></nav>
+{% if current_user %}<form method="post" action="{{ url_for('travel.logout') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="nav-cta">Sign out</button></form>{% else %}<a class="nav-cta" href="{{ url_for('travel.login') }}">Sign in</a>{% endif %}
+</div></header><main class="new-main">{% with messages=get_flashed_messages() %}{% for m in messages %}<p role="status">{{ m }}</p>{% endfor %}{% endwith %}{% block content %}{% endblock %}</main>
+<footer class="site-footer"><div class="footer-main"><div class="footer-brand-block"><a class="brand footer-brand" href="{{ url_for('home') }}"><span class="brand-mark" aria-hidden="true">T</span><span>travel<span class="brand-light">mate</span></span></a><p>Find your somewhere.<br>Make it a story.</p></div><div class="footer-column"><h2>Explore</h2><a href="{{ url_for('destinations') }}">Destinations</a><a href="{{ url_for('plan_trip') }}">Plan a Trip</a><a href="{{ url_for('budget_calculator') }}">Budget Calculator</a><a href="{{ url_for('travel.my_trips') }}">My Trips</a></div><div class="footer-column"><h2>TravelMate</h2><a href="{{ url_for('travel.about') }}">About & FAQ</a><a href="{{ url_for('travel.contact') }}">Contact</a><a href="{{ url_for('travel.privacy') }}">Privacy</a><a href="{{ url_for('travel.terms') }}">Terms</a></div><div class="footer-column"><h2>Support</h2><a href="mailto:hello@travelmate.example">Email placeholder</a><span>Phone placeholder</span></div></div><div class="footer-bottom"><span>© 2026 TravelMate</span><span>Estimated prices only</span><a href="#top">Back to top ↑</a></div></footer>
+<script src="{{ url_for('static',filename='js/app.js') }}" defer></script>{% block scripts %}{% endblock %}</body></html>
+
+
+

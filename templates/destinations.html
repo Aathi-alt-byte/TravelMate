@@ -1,0 +1,78 @@
+﻿{% extends "base.html" %}
+{% block title %}Explore Destinations | TravelMate{% endblock %}
+{% block body_class %}explore-page{% endblock %}
+{% block content %}
+<section class="explore-intro" aria-labelledby="explore-title">
+      <div class="explore-intro-inner">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> A good place to begin</p>
+        <h1 id="explore-title">Explore Your Next<br><em>Destination</em></h1>
+        <p class="explore-lede">Find a place that feels like you. Big mountain air, slow beach mornings, or a little of both.</p>
+        <div class="explore-count"><span>{{ '%02d'|format(destinations|length) }}</span> places worth the journey <i aria-hidden="true"></i> India, in every direction</div>
+      </div>
+      <div class="explore-art" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1000&q=85" alt="" fetchpriority="high">
+        <span class="explore-art-label">Find your somewhere</span>
+      </div>
+    </section>
+
+    <section class="browse-section" aria-label="Browse destinations">
+      <div class="browse-controls">
+        <label class="browse-search" for="browse-query">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <span class="sr-only">Search destination names</span>
+          <input id="browse-query" type="search" placeholder="Search a destination..." autocomplete="off">
+          <kbd>/</kbd>
+        </label>
+        <div class="category-filter filter-selects" role="group" aria-label="Filter destinations">
+          <label>State<select id="filter-state"><option value="">All states</option>{% for state in destinations|map(attribute="region")|unique|sort %}<option value="{{ state|lower }}">{{ state }}</option>{% endfor %}</select></label>
+          <label>Type<select id="filter-type"><option value="">All types</option>{% for type in destinations|map(attribute="category")|unique|sort %}<option value="{{ type|lower }}">{{ type }}</option>{% endfor %}</select></label>
+          <label>Daily budget<select id="filter-budget"><option value="">Any estimate</option><option value="3000">Up to ₹3,000</option><option value="4000">Up to ₹4,000</option><option value="5000">Up to ₹5,000</option></select></label>
+          <label>Trip duration<select id="filter-duration"><option value="">Any duration</option><option value="1-2">1–2 days</option><option value="3-4">3–4 days</option><option value="5+">5+ days</option></select></label>
+          <label>Sort<select id="sort-destinations"><option value="name">Alphabetical</option><option value="cost">Estimated daily cost</option></select></label>
+          <button type="button" class="button button-outline" id="clear-all-filters">Clear filters</button>
+        </div>
+      </div>
+
+      <div class="browse-meta" aria-live="polite"><span id="result-count">{{ '%02d'|format(destinations|length) }} destinations</span><span>Sorted for curious travellers <i aria-hidden="true">✳</i></span></div>
+      <div class="explore-grid" id="explore-grid">
+        {% for destination in destinations %}
+        <article class="explore-card" data-name="{{ destination.name|lower }}" data-category="{{ destination.category|lower }}" data-region="{{ destination.region|lower }}" data-cost="{{ destination.daily_cost }}" data-duration="{{ destination.duration_days }}">
+          <div class="explore-card-image">
+            <img src="https://images.unsplash.com/{{ destination.image_id }}?auto=format&fit=crop&w=900&q=82" alt="Scenery in {{ destination.name }}" loading="lazy">
+            <span class="explore-category">{{ destination.category }}</span>
+            <span class="explore-card-index">0{{ loop.index }}</span>
+            <a class="details-icon" href="{{ url_for('destination_detail', destination_slug=destination.slug) }}" aria-label="View details for {{ destination.name }}">↗</a>
+          </div>
+          <div class="explore-card-body">
+            <div class="explore-card-title"><div><p>{{ destination.region }}</p><h2>{{ destination.name }}</h2></div><span class="daily-cost"><strong>₹{{ '{:,}'.format(destination.daily_cost) }}</strong><small>per day</small></span></div>
+            <p class="explore-description">{{ destination.description }}</p>
+            <div class="explore-card-actions">
+              <a class="details-button" href="{{ url_for('destination_detail', destination_slug=destination.slug) }}">View Details </a>
+              <a class="plan-button" href="{{ url_for('plan_trip') }}?destination={{ destination.name|urlencode }}">Plan This Trip </a>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      <button type="button" class="button button-outline load-more" id="load-more">Load more destinations</button>
+      <div class="empty-state" id="empty-state" hidden>
+        <span class="empty-mark" aria-hidden="true">⌕</span>
+        <p class="eyebrow">No places found</p>
+        <h2>That one's still <em>out there.</em></h2>
+        <p>Try another name or clear the filters to see every destination.</p>
+        <button class="button button-teal" id="clear-filters" type="button">Show all destinations </button>
+      </div>
+    </section>
+
+    <section class="explore-outro">
+      <p>THE MAP IS ONLY THE BEGINNING.</p>
+      <a href="{{ url_for('plan_trip') }}">Make a plan of your own </a>
+    </section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/destinations.js') }}" defer></script>
+{% endblock %}
+
+
+

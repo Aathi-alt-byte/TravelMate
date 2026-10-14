@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Secure checkout | TravelMate{% endblock %}
+{% block content %}
+<section class="form-page payment-page">
+  <p class="eyebrow">SECURE CHECKOUT · RAZORPAY TEST MODE</p>
+  <h1>Review your trip</h1>
+  <p>TravelMate does not collect or store your banking credentials. Razorpay Checkout displays the payment methods enabled for this merchant.</p>
+
+  <div class="payment-summary">
+    <h2>{{ booking.destination_name }} · {{ booking.destination_region }}</h2>
+    <dl>
+      <div><dt>Travel dates</dt><dd>{{ booking.start_date }} – {{ booking.end_date }} ({{ booking.trip_days }} {{ 'day' if booking.trip_days == 1 else 'days' }})</dd></div>
+      <div><dt>Travellers</dt><dd>{{ booking.travelers }}</dd></div>
+      <div><dt>Traveller</dt><dd>{{ booking.traveler_name }}</dd></div>
+      <div><dt>Email and phone</dt><dd>{{ booking.traveler_email }} · {{ booking.traveler_phone }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="payment-costs" aria-label="Booking cost breakdown">
+    <div><span>Trip estimate ({{ booking.trip_days }} days × {{ booking.travelers }} travellers)</span><strong>₹{{ '{:,}'.format(daily_total) }}</strong></div>
+    <div><span>Approximate one-way gateway travel</span><strong>₹{{ '{:,}'.format(travel_total) }}</strong></div>
+    <div><span>Taxes and additional charges</span><strong>₹0</strong></div>
+    <div class="payment-total"><span>Total payable</span><strong>₹{{ '%.2f'|format(booking.amount_paise / 100) }} INR</strong></div>
+  </div>
+
+  <button class="button button-teal payment-button" id="pay" type="button"
+          data-key="{{ razorpay_key }}" data-order="{{ order_id }}"
+          data-booking-id="{{ booking.public_id }}"
+          data-amount="{{ booking.amount_paise }}" data-csrf="{{ csrf }}"
+          data-name="{{ booking.traveler_name }}" data-email="{{ booking.traveler_email }}"
+          data-contact="{{ booking.traveler_phone }}"
+          data-verify-url="{{ url_for('travel.verify_payment') }}">
+    <span class="pay-label">Pay ₹{{ '%.2f'|format(booking.amount_paise / 100) }} securely</span>
+    <span class="pay-loading" hidden><i aria-hidden="true"></i> Opening secure checkout…</span>
+  </button>
+  <p class="payment-processing" id="payment-processing" role="status" aria-live="polite" hidden>Waiting for payment verification. Do not close this page after completing payment.</p>
+  <p id="status" class="payment-status" role="status" aria-live="polite"></p>
+  <p class="payment-security-note">Card, UPI, net banking, and other options appear only when enabled for the merchant account. Payment confirmation requires server-side signature and gateway status verification.</p>
+  <a href="{{ url_for('travel.booking_detail', public_id=booking.public_id) }}">Back to booking details</a>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="{{ url_for('static', filename='js/checkout.js') }}" defer></script>
+{% endblock %}

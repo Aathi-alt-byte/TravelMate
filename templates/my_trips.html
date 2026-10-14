@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}My Trips{% endblock %}
+{% block content %}
+<section class="form-page">
+  <h1>My Trips</h1>
+
+  <h2>Saved itineraries</h2>
+  {% for itinerary in itineraries %}
+  <article class="trip-card">
+    <h3>{{ itinerary.destination_name }}</h3>
+    <p>{{ itinerary.start_date }} – {{ itinerary.end_date }} · {{ itinerary.travelers }} travellers</p>
+    <p>Estimated total ₹{{ '{:,}'.format(itinerary.estimated_total) }} · {{ itinerary.accommodation }} stay · {{ itinerary.transportation }}</p>
+    <a href="{{ url_for('itinerary_result', public_id=itinerary.public_id) }}">View itinerary</a>
+  </article>
+  {% else %}
+  <p>No saved itineraries yet. Generate a trip plan and save it here.</p>
+  {% endfor %}
+
+  <h2>Your bookings</h2>
+  {% for b in bookings %}
+  <article class="trip-card">
+    <h3>{{ b.destination_name }}</h3>
+    <p>{{ b.start_date }} – {{ b.end_date }} · {{ b.travelers }} travellers</p>
+    <p>Booking {{ b.public_id }} · ₹{{ '%.2f'|format(b.amount_paise/100) }}</p>
+    <p>Payment {{ b.payment_status }} · Booking {{ b.booking_status }} · Cancellation/refund {{ b.cancellation_status }}</p>
+    <a href="{{ url_for('travel.booking_detail', public_id=b.public_id) }}">Details</a>
+    {% if b.booking_status=='awaiting_payment' %}
+    <form method="post" action="{{ url_for('travel.cancel_booking', public_id=b.public_id) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button>Cancel unpaid booking</button></form>
+    {% endif %}
+  </article>
+  {% else %}
+  <p>No bookings yet.</p>
+  {% endfor %}
+  <a href="{{ url_for('destinations') }}">Explore destinations</a>
+</section>
+{% endblock %}

@@ -1,0 +1,119 @@
+﻿{% extends "base.html" %}
+{% block title %}Plan Your Budget | TravelMate{% endblock %}
+{% block body_class %}budget-page{% endblock %}
+{% block content %}
+<section class="budget-intro">
+      <div class="budget-intro-inner">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> Make the numbers feel easy</p>
+        <h1>Plan Your<br><em>Budget</em></h1>
+        <p>Give every part of your trip a little room. Adjust the estimates as you go and find a total that feels right.</p>
+      </div>
+      <div class="budget-intro-note"><span aria-hidden="true">₹</span><p>Good plans<br>leave room.</p></div>
+    </section>
+
+    <section class="budget-workspace" aria-label="Trip budget calculator">
+      <div class="budget-entry-column">
+        <div class="budget-section-heading"><p class="eyebrow"><span class="eyebrow-rule"></span> Your trip, in numbers</p><h2>Start with the <em>essentials.</em></h2><p>Enter average costs per traveler, per day. One-off fares can be divided across your trip days.</p></div>
+
+        {% if has_destination_estimate %}<p class="estimate-seed-note"><span aria-hidden="true">✳</span> Sample daily costs for {{ selected_destination }} are prefilled as a starting point. Edit any amount to suit your plans.</p>{% endif %}
+
+        <form class="budget-form" id="budget-form" novalidate>
+          <div class="budget-trip-fields">
+            <div class="budget-field destination-budget-field">
+              <label for="budget-destination">Destination <small>OPTIONAL</small></label>
+              <select id="budget-destination" name="destination">
+                <option value="">Choose a destination</option>
+                {% for destination in destinations %}<option value="{{ destination.name }}" data-daily-cost="{{ destination.daily_cost }}" {% if selected_destination == destination.name %}selected{% endif %}>{{ destination.name }} · {{ destination.region }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="budget-field">
+              <label for="budget-travelers">Travelers</label>
+              <div class="budget-number-box"><input id="budget-travelers" name="travelers" type="number" min="1" max="20" step="1" value="{{ calculator_data.travelers }}" inputmode="numeric" aria-describedby="travelers-error"><span>people</span></div>
+              <small class="budget-input-error" id="travelers-error"></small>
+            </div>
+            <div class="budget-field">
+              <label for="budget-days">Trip duration</label>
+              <div class="budget-number-box"><input id="budget-days" name="days" type="number" min="1" max="365" step="1" value="{{ calculator_data.days }}" inputmode="numeric" aria-describedby="days-error"><span>days</span></div>
+              <small class="budget-input-error" id="days-error"></small>
+            </div>
+          </div>
+
+          <div class="budget-cost-fields">
+            <div class="budget-field cost-field">
+              <label for="cost-transportation"> class="cost-symbol" aria-hidden="true">?</span> Transportation</label>
+              <div class="rupee-input"><span aria-hidden="true">₹</span><input id="cost-transportation" name="transportation_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.transportation }}" inputmode="numeric" aria-label="Transportation cost per traveler per day"></div>
+              <small class="budget-input-error" id="transportation-error"></small>
+            </div>            <div class="budget-field cost-field">
+              <label for="cost-local">Local travel</label>
+              <div class="rupee-input"><span aria-hidden="true">INR</span><input id="cost-local" name="local_transportation_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.local_transportation }}" aria-label="Local travel cost per traveller per day"></div>
+              <small class="budget-input-error" id="local-error"></small>
+            </div>
+            <div class="budget-field cost-field">
+              <label for="cost-accommodation"><span class="cost-symbol" aria-hidden="true">⌂</span> Accommodation</label>
+              <div class="rupee-input"><span aria-hidden="true">₹</span><input id="cost-accommodation" name="accommodation_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.accommodation }}" inputmode="numeric" aria-label="Accommodation cost per traveler per day"></div>
+              <small class="budget-input-error" id="accommodation-error"></small>
+            </div>
+            <div class="budget-field cost-field">
+              <label for="cost-food"><span class="cost-symbol" aria-hidden="true">ï¼‹</span> Food expenses</label>
+              <div class="rupee-input"><span aria-hidden="true">₹</span><input id="cost-food" name="food_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.food }}" inputmode="numeric" aria-label="Food expenses per traveler per day"></div>
+              <small class="budget-input-error" id="food-error"></small>
+            </div>
+            <div class="budget-field cost-field">
+              <label for="cost-activities"><span class="cost-symbol" aria-hidden="true">✳</span> Sightseeing & activities</label>
+              <div class="rupee-input"><span aria-hidden="true">₹</span><input id="cost-activities" name="activities_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.activities }}" inputmode="numeric" aria-label="Sightseeing and activities cost per traveler per day"></div>
+              <small class="budget-input-error" id="activities-error"></small>
+            </div>
+            <div class="budget-field cost-field">
+              <label for="cost-other"><span class="cost-symbol" aria-hidden="true">ï¼‹</span> Other expenses</label>
+              <div class="rupee-input"><span aria-hidden="true">₹</span><input id="cost-other" name="other_cost" type="number" min="0" max="5000000" step="1" value="{{ calculator_data.other }}" inputmode="numeric" aria-label="Other expenses per traveler per day"></div>
+              <small class="budget-input-error" id="other-error"></small>
+            </div>
+          </div>
+
+          <div class="budget-limit-field budget-field">
+            <div><label for="budget-limit">Your total budget <span class="required-mark">*</span></label><small>Set a limit to see how your estimate compares.</small></div>
+            <div class="rupee-input budget-limit-input"><span aria-hidden="true">₹</span><input id="budget-limit" name="budget" type="number" min="1" max="50000000" step="1" value="{{ calculator_data.budget }}" placeholder="e.g. 50,000" inputmode="numeric" aria-describedby="budget-error"><small>INR</small></div>
+            <small class="budget-input-error" id="budget-error"></small>
+          </div>
+        </form>
+
+        <p class="budget-estimate-note"><span aria-hidden="true">i</span> Estimates are examples for planning, not live prices or booking quotes. Actual costs vary by season, availability, and travel style.</p>
+        <div class="budget-actions">
+          <a class="button button-outline" id="back-to-plan" href="{{ url_for('plan_trip', destination=selected_destination or None) }}"> Back to Trip Plan</a>
+          <button class="button button-gold save-budget-button" id="save-budget" type="button"> Save Budget</button>
+        </div>
+        <p class="save-status" id="save-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <aside class="budget-results" aria-label="Calculated budget summary">
+        <div class="results-topline"> class="results-icon" aria-hidden="true">?</span><span>YOUR TRIP ESTIMATE</span></div>
+        <p class="results-destination" id="results-destination">{{ selected_destination or 'Your getaway' }} · <span id="results-duration">{{ calculator_data.days }} days</span></p>
+        <p class="total-caption">ESTIMATED TOTAL TRIP COST</p>
+        <strong class="total-amount" id="total-cost" aria-live="polite">₹0</strong>
+        <div class="per-person-line"><span>Cost per person</span><strong id="per-person-cost">₹0</strong></div>
+
+        <div class="budget-comparison" id="budget-comparison" data-state="unset" aria-live="polite">
+          <span class="comparison-dot" aria-hidden="true"></span><div><strong id="comparison-title">Add a budget to compare</strong><p id="comparison-copy">Your estimate updates as you edit.</p></div>
+        </div>
+
+        <div class="breakdown-heading"><strong>Expense breakdown</strong><span>EST. TOTAL</span></div>
+        <div class="breakdown-list" id="breakdown-list">
+          <div class="breakdown-item" data-key="transportation"><div><span>Transportation</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+          <div class="breakdown-item" data-key="local_transportation"><div><span>Local travel</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+          <div class="breakdown-item" data-key="accommodation"><div><span>Accommodation</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+          <div class="breakdown-item" data-key="food"><div><span>Food expenses</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+          <div class="breakdown-item" data-key="activities"><div><span>Sightseeing & activities</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+          <div class="breakdown-item" data-key="other"><div><span>Other expenses</span><strong>₹0</strong></div><div class="breakdown-track"><i></i></div></div>
+        </div>
+        <p class="results-footnote">Calculated from your daily estimates × {{ calculator_data.travelers }} travelers × {{ calculator_data.days }} days.</p>
+      </aside>
+    </section>
+
+    <section class="budget-bottom-strip"><span>GOOD TRIPS AREN'T ONE-SIZE-FITS-ALL.</span><a href="{{ url_for('destinations') }}">Find your destination </a></section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/budget.js') }}" defer></script>
+{% endblock %}
+
+
+
